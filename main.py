@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QWidget
 from PySide6.QtGui import QPalette, QColor
 from layout_colorwidget import Color
 from PySide6.QtWidgets import QVBoxLayout 
-from PySide6.QtWidgets import QHBoxLayout, QLineEdit
+from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QListWidget
 
 
 # Что такое super() ?
@@ -48,10 +48,11 @@ from PySide6.QtWidgets import QHBoxLayout, QLineEdit
 
 
 class LeftPannel(QWidget):
+   
     def __init__(self):
         super(LeftPannel, self).__init__()
         
-        self.setFixedWidth(111)
+        self.setFixedWidth(224)
         layout2 = QVBoxLayout()
        
         layout2.addWidget(QLineEdit())
@@ -60,16 +61,33 @@ class LeftPannel(QWidget):
         # Задача 2
         # Задача 3
 
-        layout2.addWidget(Color('red'))
-        layout2.addWidget(Color('yellow'))
-
-        
+        # layout2.addWidget(Color('red'))
+        listwidget = QListWidget()
+        layout2.addWidget(listwidget)
+        listwidget.addItems(["One", "Two", "Three"])
+        # layout2.addWidget(Color('yellow'))
+        listwidget.currentTextChanged.connect(self.text_changed)
 
         self.setLayout(layout2)
 
+      
+    def text_changed(self, text):  # text is a str
+        print(text)
+        
+
+        
 
 # Задача 1
-# class ...
+class MapWidget(QWidget):
+    def __init__(self):
+        super(MapWidget, self).__init__()
+        
+        layout3 = QHBoxLayout()
+      
+        layout3.addWidget(Color('green'))
+        self.setLayout(layout3)
+
+
 
 
 class MainWindow(QMainWindow):
@@ -82,30 +100,13 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(widget)
 
 
-        # layout2 = QVBoxLayout()
-        # # layout2.setFixedWidth(400)
-
-        # # layout2.addWidget(QLineEdit())
-        # layout2.addWidget(Color('red'))
-        # layout2.addWidget(Color('yellow'))
-        # layout2.addWidget(Color('purple'))
-
         layout1 = QHBoxLayout()
         # layout1.addLayout( layout2 )
         layout1.addWidget( LeftPannel() )
 
 
-        # Задача 1
-        layout1.addWidget(Color('green'))
-
-        # layout3.addWidget(Color('red'))
-        # layout3.addWidget(Color('purple'))
-
-        # layout1.addLayout( layout3 )
-        # top_line_edit = QLineEdit(parent=self)
-        # layout2.addWidget(top_line_edit)
-       
-        # self.setLayout(layout)
+        layout1.addWidget(MapWidget())
+      
 
         widget = QWidget()
         widget.setLayout(layout1)
