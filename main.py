@@ -4,6 +4,10 @@ from PySide6.QtGui import QPalette, QColor
 from layout_colorwidget import Color
 from PySide6.QtWidgets import QVBoxLayout 
 from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QListWidget
+from PySide6.QtWebEngineWidgets import QWebEngineView
+
+import folium
+import io
 
 
 # Что такое super() ?
@@ -78,16 +82,35 @@ class LeftPannel(QWidget):
         
 
 # Задача 1
-class MapWidget(QWidget):
-    def __init__(self):
-        super(MapWidget, self).__init__()
+# class MapWidget(QWidget):
+    # def __init__(self):
+    #     super(MapWidget, self).__init__()
         
-        layout3 = QHBoxLayout()
+    #     layout3 = QHBoxLayout()
       
-        layout3.addWidget(Color('green'))
-        self.setLayout(layout3)
+    #     layout3.addWidget(Color('green'))
+    #     self.setLayout(layout3)
 
-
+class MapWidget(QWebEngineView):
+    def __init__(self, initial_coordinates: tuple[float, float]):
+        super().__init__()
+        self.folium_map = folium.Map(
+            location=initial_coordinates,
+            zoom_start=13,
+            zoom_control=False,
+            attribution_control=False
+        )
+        self.data = io.BytesIO()
+        self.folium_map.save(self.data, close_file=False)
+        self.setHtml(self.data.getvalue().decode())
+        self.new_coords = initial_coordinates
+    
+    def update_map(self, new_coords: tuple[float, float]):
+        self.folium_map.location = new_coords
+        self.data = io.BytesIO()
+        self.folium_map.save(self.data, close_file=False)
+        self.setHtml(self.data.getvalue().decode())
+        self.new_coords = new_coords
 
 
 class MainWindow(QMainWindow):
@@ -105,7 +128,7 @@ class MainWindow(QMainWindow):
         layout1.addWidget( LeftPannel() )
 
 
-        layout1.addWidget(MapWidget())
+        layout1.addWidget(MapWidget((55.030204, 82.920430)))
       
 
         widget = QWidget()
