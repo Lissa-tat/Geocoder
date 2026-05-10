@@ -42,7 +42,7 @@ import io
 
 
 
-# TODO
+# TODO I
 # 1. Сделать виджет справа MapWidget
 # 2. Убрать цветастые хуйни из левой панели
 # 3. Добавить список в левую панель ниже QLlineEdit (Список это тоже базовый виджет типо QLineEdit. Называется QListWidget)
@@ -50,6 +50,11 @@ import io
 # Дополнительно.
 # 1. Сделать так что бы при запуске приложения оно сразу открывалось в полном окне
 
+
+# TODO II
+# 1. Сделать метод в классе MapWidget который принимает координаты и меняет местоположение маркера (высавляет переданные координаты)
+# 2. Поправить баг с несколькими маркерами
+# 3. Сделать функцию, которая устанавливает локацию камеры в нужной точке
 
 class LeftPannel(QWidget):
    
@@ -100,19 +105,51 @@ class MapWidget(QWebEngineView):
             zoom_control=False,
             attribution_control=False
         )
+      
         self.data = io.BytesIO()
         self.folium_map.save(self.data, close_file=False)
         self.setHtml(self.data.getvalue().decode())
-        self.new_coords = initial_coordinates
+        self.new_coords = initial_coordinates 
+        self.set_coordinates(56.204179, 95.70)
+        self.set_coordinates(56.204179, 95.716655)
+        self.set_coordinates(56.204179, 95.73665)
+        
+
+        # self.folium_marker = folium.Marker(
+        #     location = initial_coordinates,
+        #     tooltip="Click me!",
+        #     popup="Novosibirsk",
+        #     icon=folium.Icon(color="green"),
+        # ).add_to(self.folium_map)
+        
+
+        # self.update_map()
+
     
-    def update_map(self, new_coords: tuple[float, float]):
-        self.folium_map.location = new_coords
+    # def update_map(self, new_coords: tuple[float, float]):
+    
+   
+    def update_map(self):
         self.data = io.BytesIO()
         self.folium_map.save(self.data, close_file=False)
         self.setHtml(self.data.getvalue().decode())
-        self.new_coords = new_coords
+        
+    
+    
+    def set_coordinates(self, lon, lat):
+        initial_coordinates = (lon, lat)
+        self.folium_marker = folium.Marker(
+            location = initial_coordinates,
+            tooltip="Click me!",
+            popup="Novosibirsk",
+            icon=folium.Icon(color="green"),
+        ).add_to(self.folium_map)
+        
 
+        self.update_map()
 
+    
+   
 class MainWindow(QMainWindow):
 
     def __init__(self):
