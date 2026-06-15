@@ -3,11 +3,14 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QWidget
 from PySide6.QtGui import QPalette, QColor
 from layout_colorwidget import Color
 from PySide6.QtWidgets import QVBoxLayout 
-from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QListWidget
+from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QListWidget, QPushButton
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 import folium
 import io
+
+
+from geopy.geocoders import Nominatim
 
 
 # Что такое super() ?
@@ -56,6 +59,26 @@ import io
 # 2. Поправить баг с несколькими маркерами
 # 3. Сделать функцию, которая устанавливает локацию камеры в нужной точке
 
+class Geocoder():
+    def __init__(self):
+        # self.address = "1600 Amphitheatre Parkway, Mountain View, CA"
+        self.address = "Novosibirsk"
+    
+        self.geolocator = Nominatim(user_agent="qwerty")
+        self.location: tuple[float, float]
+
+    def location(self):  
+        # Вызываем метод geocode объекта геокодера для геокодирования адреса
+        self.location = self.geolocator.geocode(self.address)
+ 
+        # Печатаем результат
+        print("Адрес:", self.address)
+        print("Широта:", self.location.latitude)
+        print("Долгота:", self.location.longitude)
+
+        return self.location.latitude, self.location.longitude
+
+
 class LeftPannel(QWidget):
    
     def __init__(self):
@@ -65,6 +88,11 @@ class LeftPannel(QWidget):
         layout2 = QVBoxLayout()
        
         layout2.addWidget(QLineEdit())
+        # layout2.addWidget(self.line_edit)
+        text = QLineEdit().text()
+        save_button = QPushButton("Сохранить", window)
+        save_button.clicked.connect(QLineEdit().text())
+        print(text)
 
 
         # Задача 2
@@ -82,19 +110,7 @@ class LeftPannel(QWidget):
       
     def text_changed(self, text):  # text is a str
         print(text)
-        
 
-        
-
-# Задача 1
-# class MapWidget(QWidget):
-    # def __init__(self):
-    #     super(MapWidget, self).__init__()
-        
-    #     layout3 = QHBoxLayout()
-      
-    #     layout3.addWidget(Color('green'))
-    #     self.setLayout(layout3)
 
 class MapWidget(QWebEngineView):
     def __init__(self, initial_coordinates: tuple[float, float]):
@@ -109,35 +125,28 @@ class MapWidget(QWebEngineView):
         self.data = io.BytesIO()
         self.folium_map.save(self.data, close_file=False)
         self.setHtml(self.data.getvalue().decode())
-        self.new_coords = initial_coordinates 
-        self.set_coordinates(56.204179, 95.70)
-        self.set_coordinates(56.204179, 95.716655)
-        self.set_coordinates(56.204179, 95.73665)
-        
+        self.new_coords = initial_coordinates
 
-        # self.folium_marker = folium.Marker(
-        #     location = initial_coordinates,
-        #     tooltip="Click me!",
-        #     popup="Novosibirsk",
-        #     icon=folium.Icon(color="green"),
-        # ).add_to(self.folium_map)
-        
 
-        # self.update_map()
+        # self.set_coordinates(56.204179, 105.70)
+        # self.set_coordinates(56.204179, 115.70)
 
-    
-    # def update_map(self, new_coords: tuple[float, float]):
-    
-   
-    def update_map(self):
-        self.data = io.BytesIO()
-        self.folium_map.save(self.data, close_file=False)
-        self.setHtml(self.data.getvalue().decode())
-        
-    
+        # self.set_coordinates(*Geocoder().location())
+        # self.set_coordinates(66.204179, 95.716655)
+        # self.set_coordinates(56.204179, 95.73665)
+     
     
     def set_coordinates(self, lon, lat):
         initial_coordinates = (lon, lat)
+        print(initial_coordinates)
+        
+        self.folium_map = folium.Map(
+            location=initial_coordinates,
+            zoom_start=13,
+            zoom_control=False,
+            attribution_control=False
+        )
+        
         self.folium_marker = folium.Marker(
             location = initial_coordinates,
             tooltip="Click me!",
@@ -145,8 +154,12 @@ class MapWidget(QWebEngineView):
             icon=folium.Icon(color="green"),
         ).add_to(self.folium_map)
         
-
         self.update_map()
+
+    def update_map(self):
+        self.data = io.BytesIO()
+        self.folium_map.save(self.data, close_file=False)
+        self.setHtml(self.data.getvalue().decode())
 
     
    
@@ -161,11 +174,12 @@ class MainWindow(QMainWindow):
 
 
         layout1 = QHBoxLayout()
-        # layout1.addLayout( layout2 )
+        # layout1.addLayout(layout2)
         layout1.addWidget( LeftPannel() )
 
 
         layout1.addWidget(MapWidget((55.030204, 82.920430)))
+        # layout1.addWidget(MapWidget(Geocoder().location()))
       
 
         widget = QWidget()
@@ -176,3 +190,6 @@ app = QApplication(sys.argv)
 window = MainWindow()
 window.show()
 app.exec()
+# a = Geocoder().location()
+# print(a)
+
