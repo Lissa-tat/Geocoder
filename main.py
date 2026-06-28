@@ -14,9 +14,11 @@ from geopy.geocoders import Nominatim
 
 from view.map_widget import MapWidget
 from view.left_pannel import LeftPannel
-from geocoder import Geocoder
 
 
+from api import API
+
+import json
 # Что такое super() ?
 # -------------------------------------------------------
 
@@ -70,6 +72,12 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        with open('config.json', 'r', encoding='utf-8') as json_file:
+            data = json.load(json_file)
+
+      
+        self.api = API(data['2gis_api_key'])
+
         self.setWindowTitle("My App")
         widget = Color("red")
         self.setCentralWidget(widget)
@@ -77,18 +85,20 @@ class MainWindow(QMainWindow):
 
         layout1 = QHBoxLayout()
         # layout1.addLayout(layout2)
-        layout1.addWidget(LeftPannel())
-
-
-        layout1.addWidget(
-            MapWidget((55.030204, 82.920430))
-        )
-        # layout1.addWidget(MapWidget(Geocoder().location()))
-      
-
+        layout1.addWidget(LeftPannel(self))
+       
+        self.map_widget = MapWidget(self.api.get_coordinates('Москва, Садовническая, 25'))
+        layout1.addWidget(self.map_widget)
+     
         widget = QWidget()
         widget.setLayout(layout1)
         self.setCentralWidget(widget)
+
+    def geocode(self, address):
+        coordinates = self.api.get_coordinates(address)             
+        self.map_widget.set_coordinates(*coordinates)
+      
+
 
 app = QApplication(sys.argv)
 window = MainWindow()

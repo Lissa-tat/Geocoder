@@ -14,21 +14,14 @@ class MapWidget(QWebEngineView):
             zoom_control=False,
             attribution_control=False
         )
-      
+        
         self.data = io.BytesIO()
         self.folium_map.save(self.data, close_file=False)
         self.setHtml(self.data.getvalue().decode())
         self.new_coords = initial_coordinates
 
-
-        # self.set_coordinates(56.204179, 105.70)
-        self.set_coordinates(56.010543, 92.852581)
-       
-
-        # self.set_coordinates(*Geocoder().location())
-        # self.set_coordinates(66.204179, 95.716655)
-        # self.set_coordinates(56.204179, 95.73665)
-     
+        self.set_coordinates(*initial_coordinates)
+         
     
     def set_coordinates(self, lon, lat):
         initial_coordinates = (lon, lat)
